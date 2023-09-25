@@ -30,20 +30,36 @@ public class CustomerServiceImpl implements CustomerService {
             if (customer.getMoneyAccount().doubleValue() < orderPrice) {
                 throw new ApplicationException(ExceptionEnum.LOW_MONEY_EXCEPTION);
             }
-            customer.setMoneyAccount(BigDecimal.valueOf(customer.getMoneyAccount().doubleValue() - orderPrice));
+            if(CustomerHelperService.checkBirthday(customer)){
+                orderPrice = CustomerHelperService.calculateBirthdayOrFirstOrderBonus(orderPrice);
+                customer.setMoneyAccount(BigDecimal.valueOf(customer.getMoneyAccount().doubleValue() - orderPrice));
+                Courier courier = CustomerHelperService.searchCourier();
+                Order order = CustomerHelperService.finishOrder(pizza, pizzaVolume, sous, orderPrice, customer, courier);
+                CustomerHelperService.cashReceiptForBirthday(order);
+                return new BaseResponse<Order>().of(200, "Success", order);
+            }
 
-            Courier courier = CustomerHelperService.searchCourier();
-
-            Order order =  CustomerHelperService.finishOrder(pizza,pizzaVolume,sous,orderPrice,customer,courier);
-
-            CustomerHelperService.cashReceipt(order);
-            return new BaseResponse<Order>().of(200,"Success",order);
+            if (CustomerHelperService.hasCustomer(customer)) {
+                customer.setMoneyAccount(BigDecimal.valueOf(customer.getMoneyAccount().doubleValue() - orderPrice));
+                Courier courier = CustomerHelperService.searchCourier();
+                Order order = CustomerHelperService.finishOrder(pizza, pizzaVolume, sous, orderPrice, customer, courier);
+                CustomerHelperService.cashReceipt(order);
+                return new BaseResponse<Order>().of(200, "Success", order);
+            }else {
+                orderPrice = CustomerHelperService.calculateBirthdayOrFirstOrderBonus(orderPrice);
+                customer.setMoneyAccount(BigDecimal.valueOf(customer.getMoneyAccount().doubleValue() - orderPrice));
+                Courier courier = CustomerHelperService.searchCourier();
+                Order order = CustomerHelperService.finishOrder(pizza, pizzaVolume, sous, orderPrice, customer, courier);
+                CustomerHelperService.cashReceiptForFirstOrder(order);
+                return new BaseResponse<Order>().of(200, "Success", order);
+            }
         }
         return null;
     }
+
     @Override
     public void trackOrder(Customer customer) {
-        if(GlobalData.orders.isEmpty()){
+        if (GlobalData.orders.isEmpty()) {
             throw new ApplicationException(ExceptionEnum.ORDER_NOT_FOUND_EXCEPTION);
         }
         for (Order order : GlobalData.orders) {
@@ -52,9 +68,10 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
     }
+
     @Override
     public BaseResponse<Order> cancelOrder(Customer customer) {
-        if(GlobalData.orders.isEmpty()){
+        if (GlobalData.orders.isEmpty()) {
             throw new ApplicationException(ExceptionEnum.ORDER_NOT_FOUND_EXCEPTION);
         }
         for (Order order : GlobalData.orders) {

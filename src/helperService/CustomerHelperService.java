@@ -9,10 +9,10 @@ import exception.ApplicationException;
 import model.Courier;
 import model.Customer;
 import model.Order;
-import model.Restaurant;
 import util.InputUtil;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class CustomerHelperService {
     private static long customerId;
@@ -25,9 +25,24 @@ public class CustomerHelperService {
             String email = InputUtil.getInstance().inputString("Enter the email: ");
             alreadyExistEmail(email);
             String password = InputUtil.getInstance().inputString("Enter the password: ");
-            return new Customer(++customerId, name, surname, phoneNumber, email, password, 0, BigDecimal.valueOf(0), HelperService.now(), 1);
+            LocalDate birthday = birthdayFormat();
+            return new Customer(++customerId, name, surname, phoneNumber, email, password, 0, BigDecimal.valueOf(0), HelperService.now(), 1,birthday);
         } catch (RuntimeException e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static LocalDate birthdayFormat() {
+        try {
+            String stringBirthday = InputUtil.getInstance().inputString("Enter the birthday(dd/MM/YYYY): ");
+            String[] splitBirthday = stringBirthday.split("/");
+            byte day = (byte) Integer.parseInt(splitBirthday[0]);
+            byte month = (byte) Integer.parseInt(splitBirthday[1]);
+            int years = Integer.parseInt(splitBirthday[2]);
+            return LocalDate.of(years,month,day);
+        }catch (RuntimeException exception){
+            System.out.println(exception.getMessage());
             return null;
         }
     }
@@ -126,5 +141,48 @@ public class CustomerHelperService {
                 "\nCourier vehicleType:     " + order.getCourier().getVehicleType() +
                 "\nCourier vehiclePlate     " + order.getCourier().getVehiclePlate() +
                 "\n\n\nCash: " + order.getPrice());
+    }
+    public static void cashReceiptForBirthday(Order order) {
+        System.out.println("--------------| Your birthday |--------------" +
+                "\nStart Date: " + order.getStartTime() +
+                "\nEnd Date: " + order.getDeliveryTime() +
+                "\nEmail: " + order.getCustomer().getEmail() +
+                "\n" + order.getPizzaName() + "    " + order.getPizzaSize() + "   " + order.getPrice() + " azn" +
+                "\n" + order.getSous() + "              " + "0.7 azn\n" +
+                "Courier name:              " + order.getCourier().getName() +
+                "\nCourier phoneNumber:     " + order.getCourier().getPhoneNumber() +
+                "\nCourier vehicleType:     " + order.getCourier().getVehicleType() +
+                "\nCourier vehiclePlate     " + order.getCourier().getVehiclePlate() +
+                "\n\n\nCash: " + order.getPrice());
+    }
+    public static void cashReceiptForFirstOrder(Order order) {
+        System.out.println("--------------| Your first order |--------------" +
+                "\nStart Date: " + order.getStartTime() +
+                "\nEnd Date: " + order.getDeliveryTime() +
+                "\nEmail: " + order.getCustomer().getEmail() +
+                "\n" + order.getPizzaName() + "    " + order.getPizzaSize() + "   " + order.getPrice() + " azn" +
+                "\n" + order.getSous() + "              " + "0.7 azn\n" +
+                "Courier name:              " + order.getCourier().getName() +
+                "\nCourier phoneNumber:     " + order.getCourier().getPhoneNumber() +
+                "\nCourier vehicleType:     " + order.getCourier().getVehicleType() +
+                "\nCourier vehiclePlate     " + order.getCourier().getVehiclePlate() +
+                "\n\n\nCash: " + order.getPrice());
+    }
+
+    public static boolean hasCustomer(Customer customer) {
+        for (Order checkOrder : GlobalData.orders) {
+            if (checkOrder.getCustomer().equals(customer)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static double calculateBirthdayOrFirstOrderBonus(double orderPrice) {
+        return orderPrice/2;
+    }
+
+    public static boolean checkBirthday(Customer customer) {
+        return customer.getBirthday().getDayOfMonth() == HelperService.now().getDayOfMonth();
     }
 }

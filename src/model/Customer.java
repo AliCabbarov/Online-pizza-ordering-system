@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -11,12 +12,13 @@ public class Customer {
     private String phoneNumber;
     private String email;
     private String password;
+    private LocalDate birthday;
     private long orderId;
     private BigDecimal moneyAccount;
     private LocalDateTime registrationDate;
     private int status;
 
-    public Customer(long id, String name, String surname, String phoneNumber, String email, String password, long orderId, BigDecimal moneyAccount, LocalDateTime registrationDate, int status) {
+    public Customer(long id, String name, String surname, String phoneNumber, String email, String password, long orderId, BigDecimal moneyAccount, LocalDateTime registrationDate, int status, LocalDate birthday) {
         this.id = id;
         this.name = name;
         this.surname = surname;
@@ -27,6 +29,15 @@ public class Customer {
         this.moneyAccount = moneyAccount;
         this.registrationDate = registrationDate;
         this.status = status;
+        this.birthday = birthday;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
     public long getId() {
