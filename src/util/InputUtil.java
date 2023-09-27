@@ -25,9 +25,4 @@ public class InputUtil {
         System.out.print(title);
         return scanner.nextLine();
     }
-    public Double inputDouble (String title){
-        Scanner scanner = new Scanner(System.in);
-        System.out.print(title);
-        return scanner.nextDouble();
-    }
 }
